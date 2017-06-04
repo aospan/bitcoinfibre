@@ -94,9 +94,7 @@ void static inline DeleteLock(void* cs) {}
 class CCriticalSection : public AnnotatedMixin<std::recursive_mutex>
 {
 public:
-    ~CCriticalSection() {
-        DeleteLock((void*)this);
-    }
+    ~CCriticalSection();
 };
 
 /** Wrapped mutex: supports waiting but not recursive locking */

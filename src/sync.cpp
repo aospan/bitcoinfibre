@@ -21,6 +21,10 @@ void PrintLockContention(const char* pszName, const char* pszFile, int nLine)
 }
 #endif /* DEBUG_LOCKCONTENTION */
 
+CCriticalSection::~CCriticalSection() {
+    DeleteLock((void*)this);
+}
+
 #ifdef DEBUG_LOCKORDER
 //
 // Early deadlock detection.
