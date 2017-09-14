@@ -35,6 +35,9 @@ public:
     UniValue(bool val_) {
         setBool(val_);
     }
+    UniValue(unsigned int val_) {
+        setInt(val_);
+    }
     UniValue(int val_) {
         setInt(val_);
     }
@@ -57,6 +60,7 @@ public:
     bool setNumStr(const std::string& val);
     bool setInt(uint64_t val);
     bool setInt(int64_t val);
+    bool setInt(unsigned int val_) { return setInt((uint64_t)val_); }
     bool setInt(int val_) { return setInt((int64_t)val_); }
     bool setFloat(double val);
     bool setStr(const std::string& val);
@@ -128,6 +132,10 @@ public:
     }
     bool pushKV(const std::string& key, uint64_t val_) {
         UniValue tmpVal(val_);
+        return pushKV(key, tmpVal);
+    }
+    bool pushKV(const std::string& key, unsigned int val_) {
+        UniValue tmpVal((uint64_t)val_);
         return pushKV(key, tmpVal);
     }
     bool pushKV(const std::string& key, int val_) {
@@ -212,6 +220,13 @@ static inline std::pair<std::string,UniValue> Pair(const char *cKey, int64_t i64
 }
 
 static inline std::pair<std::string,UniValue> Pair(const char *cKey, bool iVal)
+{
+    std::string key(cKey);
+    UniValue uVal(iVal);
+    return std::make_pair(key, uVal);
+}
+
+static inline std::pair<std::string,UniValue> Pair(const char *cKey, unsigned int iVal)
 {
     std::string key(cKey);
     UniValue uVal(iVal);
