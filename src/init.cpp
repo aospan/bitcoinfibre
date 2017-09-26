@@ -39,6 +39,7 @@
 #include <txdb.h>
 #include <txmempool.h>
 #include <torcontrol.h>
+#include <udpapi.h>
 #include <ui_interface.h>
 #include <util.h>
 #include <utilmoneystr.h>
@@ -192,6 +193,7 @@ void Shutdown()
     FlushWallets();
 #endif
     MapPort(false);
+    StopUDPConnections();
 
     // Because these depend on each-other, we make sure that neither can be
     // using the other before destroying them.
@@ -376,6 +378,8 @@ std::string HelpMessage(HelpMessageMode mode)
 
     strUsage += HelpMessageGroup(_("Connection options:"));
     strUsage += HelpMessageOpt("-addnode=<ip>", _("Add a node to connect to and attempt to keep the connection open (see the `addnode` RPC command help for more info)"));
+    strUsage += HelpMessageOpt("-addudpnode=<ip/host>:<port>,<local_magic>,<remote_magic>[,<group>]", _("Add a persistent UDP node, see RPC addudpnode for detailed description"));
+    strUsage += HelpMessageOpt("-addtrustedudpnode=<ip/host>:<port>,<local_magic>,<remote_magic>[,<group>]", _("Add a trusted, persistent UDP node, see RPC addudpnode for detailed description"));
     strUsage += HelpMessageOpt("-banscore=<n>", strprintf(_("Threshold for disconnecting misbehaving peers (default: %u)"), DEFAULT_BANSCORE_THRESHOLD));
     strUsage += HelpMessageOpt("-bantime=<n>", strprintf(_("Number of seconds to keep misbehaving peers from reconnecting (default: %u)"), DEFAULT_MISBEHAVING_BANTIME));
     strUsage += HelpMessageOpt("-bind=<addr>", _("Bind to given address and always listen on it. Use [host]:port notation for IPv6"));
@@ -396,6 +400,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-permitbaremultisig", strprintf(_("Relay non-P2SH multisig (default: %u)"), DEFAULT_PERMIT_BAREMULTISIG));
     strUsage += HelpMessageOpt("-peerbloomfilters", strprintf(_("Support filtering of blocks and transaction with bloom filters (default: %u)"), DEFAULT_PEERBLOOMFILTERS));
     strUsage += HelpMessageOpt("-port=<port>", strprintf(_("Listen for connections on <port> (default: %u or testnet: %u)"), defaultChainParams->GetDefaultPort(), testnetChainParams->GetDefaultPort()));
+    strUsage += HelpMessageOpt("-udpport=<port>,<group>[,<bw>]", _("Accepts UDP connections on <port> (default: bw=1024 =1024Mbps)"));
     strUsage += HelpMessageOpt("-proxy=<ip:port>", _("Connect through SOCKS5 proxy"));
     strUsage += HelpMessageOpt("-proxyrandomize", strprintf(_("Randomize credentials for every proxy connection. This enables Tor stream isolation (default: %u)"), DEFAULT_PROXYRANDOMIZE));
     strUsage += HelpMessageOpt("-seednode=<ip>", _("Connect to a node to retrieve peer addresses, and disconnect"));
@@ -1738,6 +1743,14 @@ bool AppInitMain()
     if (!connman.Start(scheduler, connOptions)) {
         return false;
     }
+
+    // Start UDP at the very end since it has no concept of whether the res of the code is already up or not
+
+    if (GetUDPInboundPorts().size()) {
+        if (!InitializeUDPConnections())
+            return InitError(_("Failed to check the UDP listen port - is something else already bound to this port?"));
+    }
+
 
     // ********************************************************* Step 12: finished
 
