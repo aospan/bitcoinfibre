@@ -390,7 +390,7 @@ void entryToJSON(UniValue &info, const CTxMemPoolEntry &e)
     info.push_back(Pair("ancestorcount", e.GetCountWithAncestors()));
     info.push_back(Pair("ancestorsize", e.GetSizeWithAncestors()));
     info.push_back(Pair("ancestorfees", e.GetModFeesWithAncestors()));
-    info.push_back(Pair("wtxid", mempool.vTxHashes[e.vTxHashesIdx].first.ToString()));
+    info.push_back(Pair("wtxid", mempool.vTxHashes[e.vTxHashesIdx].ToString()));
     const CTransaction& tx = e.GetTx();
     std::set<std::string> setDepends;
     for (const CTxIn& txin : tx.vin)
