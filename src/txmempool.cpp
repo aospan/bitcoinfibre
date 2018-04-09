@@ -1033,16 +1033,16 @@ void CTxMemPool::TrimToSize(size_t sizelimit, std::vector<COutPoint>* pvNoSpends
         CalculateDescendants(mapTx.project<0>(it), stage);
         nTxnRemoved += stage.size();
 
-        std::vector<CTransaction> txn;
+        std::vector<const CTransaction*> txn;
         if (pvNoSpendsRemaining) {
             txn.reserve(stage.size());
             for (txiter iter : stage)
-                txn.push_back(iter->GetTx());
+                txn.push_back(&iter->GetTx());
         }
         RemoveStaged(stage, false, MemPoolRemovalReason::SIZELIMIT);
         if (pvNoSpendsRemaining) {
-            for (const CTransaction& tx : txn) {
-                for (const CTxIn& txin : tx.vin) {
+            for (const CTransaction* tx : txn) {
+                for (const CTxIn& txin : tx->vin) {
                     if (exists(txin.prevout.hash)) continue;
                     pvNoSpendsRemaining->push_back(txin.prevout);
                 }
