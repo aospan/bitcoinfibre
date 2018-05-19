@@ -51,7 +51,7 @@
 //------------------------------------------------------------------------------
 // Platform/Architecture
 
-#ifdef __arm__
+#if defined(__arm__) || defined(__aarch64__)
     #define LINUX_ARM
 #endif
 
@@ -73,7 +73,7 @@
     #include <emmintrin.h> // SSE2
 #endif // GF256_TARGET_MOBILE
 
-#if defined(HAVE_ARM_NEON_H)
+#if defined(HAVE_ARM_NEON_H) || defined(__ARM_NEON)
     #include <arm_neon.h>
 #endif // HAVE_ARM_NEON_H
 
@@ -81,7 +81,7 @@
 
     #define GF256_ALIGNED_ACCESSES /* Inputs must be aligned to GF256_ALIGN_BYTES */
 
-# if defined(HAVE_ARM_NEON_H)
+# if defined(HAVE_ARM_NEON_H) || defined(__ARM_NEON)
     // Compiler-specific 128-bit SIMD register keyword
     #define GF256_M128 uint8x16_t
     #define GF256_TRY_NEON
