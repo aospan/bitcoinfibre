@@ -259,8 +259,10 @@ void StopUDPConnections() {
 
     local_read_messages_break = true;
     if (udp_local_read_thread) {
-        udp_local_read_thread->join();
-        delete udp_local_read_thread;
+        if (!udp_local_read_thread->try_join_for(boost::chrono::milliseconds(3000)))
+            LogPrintf("Can't stop udp thread in 3 sec. Continue ... \n");
+        else
+            delete udp_local_read_thread;
     }
 
     BlockRecvShutdown();
