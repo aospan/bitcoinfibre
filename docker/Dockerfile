@@ -13,4 +13,4 @@ RUN cd /opt/bitcoinfibre && ./autogen.sh\
   && make -j 4 && make install
 
 COPY ./entrypoint.sh /
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/entrypoint.sh"]
